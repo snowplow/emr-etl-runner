@@ -1,0 +1,27 @@
+Version 0.0.6 (2012-11-28)
+--------------------------
+--skip takes multiple args (part of #83, supercedes #80)
+Add --process-bucket to process a bucket directly (part of #83)
+
+Version 0.0.5 (2012-11-12)
+--------------------------
+Bumped gem dependencies to match StorageLoader (including Sluice 0.0.4)
+Renamed snowplow-emr-etl.sh to snowplow-emr-etl-runner.sh
+
+Version 0.0.4 (2012-11-05)
+--------------------------
+Fixed reference to old version of Hive deserializer in config.yml (fixes #71)
+Fixed bug using sub-folders with the Processing Bucket (fixes #72)
+Can now skip move-files-to-Processing-Bucket or EMR stages (fixes #58)
+S3 filecopy code now moved to Sluice, an external Ruby gem
+
+Version 0.0.3 (2012-10-31)
+--------------------------
+Moved 3 .rb files in lib/ into lib/snowplow-emr-etl-runner
+Added/updated configuration options (:etl: section and hiveql versioning params)
+
+Version 0.0.2 (2012-10-24)
+--------------------------
+Tidied up folder structure inside 3-etl/
+Serde: assembles to /target, not to /upload any more (and jars won't be committed to Git)
+Added. Ruby application to run Hive ETL process on Amazon EMR
