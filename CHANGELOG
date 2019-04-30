@@ -1,3 +1,9 @@
+Version 0.34.2 (2019-05-17)
+------------------------------------
+Extend backoff periods (#4049)
+Limit requests to the EMR API (#4056)
+Initialize S3::Aws constant (#4036)
+
 Version 0.34.1 (2019-02-27)
 ---------------------------------
 Add exponential backoff when getting cluster statuses (#3995)
