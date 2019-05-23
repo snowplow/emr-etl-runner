@@ -1,3 +1,8 @@
+Version 0.34.3 (2019-07-17)
+---------------------------------
+Update Contracts for get_failure_details (#4088)
+Make sure all steps are successfully submitted in case of a transient cluster (#4092)
+
 Version 0.34.2 (2019-05-17)
 ------------------------------------
 Extend backoff periods (#4049)
