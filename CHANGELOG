@@ -1,3 +1,8 @@
+Version 0.35.0 (2019-09-12)
+---------------------------------
+Add support for shredded TSV data (#4074)
+Update spark_enrich version in config samples to 1.18.0 (#4091)
+
 Version 0.34.3 (2019-07-17)
 ---------------------------------
 Update Contracts for get_failure_details (#4088)
