@@ -1,3 +1,9 @@
+Version 0.37.0 (2020-04-30)
+---------------------------------------------------
+Switch AMI bootstrap scripts to HTTPS (#4256)
+Set ig.count (#4285)
+Catch and retry EMR connection exceptions (#4290)
+
 Version 0.36.0 (2019-12-03)
 ---------------------------------
 Add support to the spot market for core instances (#3487)
