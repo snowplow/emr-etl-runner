@@ -1,0 +1,33 @@
+# Required: local settings
+local:
+  root_dir : <%= ENV['TRAVIS_BUILD_DIR'] %>
+
+# Required: deployment targets
+targets:
+  - type     : "bintray"
+    user     : <%= ENV['BINTRAY_SNOWPLOW_GENERIC_USER'] %>
+    password : <%= ENV['BINTRAY_SNOWPLOW_GENERIC_API_KEY'] %>
+
+# Required: packages to be deployed
+packages:
+  - repo     : "snowplow-generic"
+    name     : "snowplow"
+    user_org : "snowplow"
+    publish  : true
+    override : false
+    continue_on_conflict : false
+    version  : <%= CMD['cat lib/snowplow-emr-etl-runner.rb | grep VERSION | sed -E 's/VERSION = \"(.+)\"/\1/' | xargs echo -n'] %>
+    build_version : <%= ENV['TRAVIS_TAG'] %>
+    build_commands:
+      - ./build.sh
+
+    # Required: Artifact
+    artifacts:
+      - prefix : "snowplow_emr_"
+        suffix : ""
+        type   : "zip"
+
+        # The binaries to put in the zip
+        binary_paths:
+          - deploy/snowplow-emr-etl-runner
+
