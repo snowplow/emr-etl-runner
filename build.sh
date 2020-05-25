@@ -22,6 +22,6 @@ source ~/.rvm/scripts/rvm
 rvm use --default jruby-9.1.6.0
 bundle install
 echo 'Running RSpec'
-rspec
+bundle exec rspec
 echo 'Runing Rake'
-rake
+bundle exec rake
