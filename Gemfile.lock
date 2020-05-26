@@ -1,8 +1,8 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.5.0)
-      public_suffix (~> 2.0, >= 2.0.2)
+    addressable (2.7.0)
+      public_suffix (>= 2.0.2, < 5.0)
     avro (1.9.2)
       multi_json
     awrence (1.1.1)
@@ -63,7 +63,7 @@ GEM
       domain_name (~> 0.5)
     httparty (0.14.0)
       multi_xml (>= 0.5.2)
-    iglu-ruby-client (0.1.0)
+    iglu-ruby-client (0.2.0)
       httparty (<= 0.14.0)
       json-schema (~> 2.7.0, >= 2.7.0)
     ipaddress (0.8.3)
@@ -79,7 +79,7 @@ GEM
     multipart-post (2.0.0)
     netrc (0.11.0)
     nokogiri (1.8.2-java)
-    public_suffix (2.0.5)
+    public_suffix (4.0.5)
     rake (12.3.1)
     rest-client (1.8.0)
       http-cookie (>= 1.0.2, < 2.0)
@@ -128,7 +128,7 @@ DEPENDENCIES
   coveralls
   diplomat (~> 2.0.1)
   elasticity (~> 6.0.14)
-  iglu-ruby-client (>= 0.1.0)
+  iglu-ruby-client (>= 0.2.0)
   rest-client (~> 1.0)
   rspec (~> 3.9.0)
   snowplow-tracker (~> 0.6.1)
