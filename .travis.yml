@@ -12,6 +12,8 @@ env:
   - secure: ZssEEkdArPN1U8C4sbD9azwwnhew/axFcQrk9yFBdkvN6qET9oKKcLwK6IGP4shlXlSkRG/OyijKhPXgm1Ta2nBBvBVrr6RZBUrL1wfpOxU04JDYTyp0UbNP10HMQ1az8jGyxPnbq9JwjkXt5aVrU6nOkBPjn4tVQMemgIIsUnslfHAgV6CREmAOwjz1sw5oA0I/Lu9+2tQqnkogpDB+7F7GNFhfXmAv4QjtDGReI1xA4T6dmj7JE6ChNf6LoAKvsKEOMF3KQeuRdkQ+6/YTMNFxqRM9fJDSC+QOKHkazZKObwcyped0m5Yw3II9DEiT6zA9wsgMZgBbWXz05zKuqbx283PwBm3otW2krTc1W39lOyOTE1GDB97OoXTmqgkrYm7Cin1Sca4Idcbt+A7aYQdO6n9HXFfP1By+baqU3ofpkVEpAO0W+5kf6N9xHia32ALoJdbOfMB57wiC5rdfB/wdMmqWvLlib5BaeR58opHlbbFTJOiE4y7DdzIWe3hgaFC4Qj2S2okJCR2lZKAO63tpLRN6Dba/i5Mu4ivLcPNFPnGV5zAfthDP7Il9drKYOm7SZWSWTzrnh+nYr9pi51boNj0xf5xQCXhfNS4MF10qCjUN6ZH1rexYEm2I38R6ufI6QSs5CoDK22WNdHa1KekIUQifjuFedWQqcjs/20M=
 script:
 - "./build.sh"
+before_install:
+  - sudo apt-get -qq update
 before_deploy:
 - pip install --user release-manager==0.4.1
 - rvm install 2.4.3
