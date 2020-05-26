@@ -1,7 +1,7 @@
 dist: trusty
 language: ruby
 rvm:
-- jruby-9.1.6.0
+  - jruby-9.2.11.1
 jdk:
 - oraclejdk8
 env:
@@ -10,10 +10,6 @@ env:
   - secure: rXo6S5XRhHEmigeAVWxMlG2q/FZvl/N58BSY+X9a6s8pXAwDfb8ylOjzwZhk70w7akazwJbffgtktW1qO1sB/BVBrKnMSAdkJ3pQe37z9ZxpHKVv0fxPPoFZck9Z5KKlDOTPKADijHt76nqzJDk8WF2HPx2UkRSLGh1q1qa29sOUBxS4/VNaIUA3T41sfV6efFe1+bBnPCx3PY+ci/MovC0CwGokB4p+EjjIYgKhm1GjkXE9BZTiCZkYI8MW+oFPBoCxWkn2yHm74tCa1AegalezZnlptbK9K0010zCDyNe+KCvkaXZO4/LCL+kKN/V6DxYu/DObLQ9U9nhWzCz46J1rxApAG4SMqDYwaTOjn5k6Vcmd8BNO0QuAZaSLw+UZCpLSKJT/+RLKt2hPD97GJFyFOB4Hb+IEEChRSXp7jnmNH0LOronHfBw2MjVNYnIe1Hvbg+EU5e9B0AUmHSb7Kg+n9850Xrjr9ZeAbOVbfu0Q+4wOlkorEQ9fztsOzlUoyxJ00nVMe7MVr+AxX+TYaCYuW5tKjzg06m+c2B5tftKQz3XV+4BgbpQFtlrqnUlR2V5LQ4GzqZWZKxyOGT4kh7RUA3q5/S7kHYQ3D+4AZsH/6pVhM4+lY9eh/Iu1G9LWvVJQa7L5Q9rAfD+5DV/QIifi2n45yJbu0iUGbLcnJEs=
   # BINTRAY_SNOWPLOW_GENERIC_API_KEY
   - secure: ZssEEkdArPN1U8C4sbD9azwwnhew/axFcQrk9yFBdkvN6qET9oKKcLwK6IGP4shlXlSkRG/OyijKhPXgm1Ta2nBBvBVrr6RZBUrL1wfpOxU04JDYTyp0UbNP10HMQ1az8jGyxPnbq9JwjkXt5aVrU6nOkBPjn4tVQMemgIIsUnslfHAgV6CREmAOwjz1sw5oA0I/Lu9+2tQqnkogpDB+7F7GNFhfXmAv4QjtDGReI1xA4T6dmj7JE6ChNf6LoAKvsKEOMF3KQeuRdkQ+6/YTMNFxqRM9fJDSC+QOKHkazZKObwcyped0m5Yw3II9DEiT6zA9wsgMZgBbWXz05zKuqbx283PwBm3otW2krTc1W39lOyOTE1GDB97OoXTmqgkrYm7Cin1Sca4Idcbt+A7aYQdO6n9HXFfP1By+baqU3ofpkVEpAO0W+5kf6N9xHia32ALoJdbOfMB57wiC5rdfB/wdMmqWvLlib5BaeR58opHlbbFTJOiE4y7DdzIWe3hgaFC4Qj2S2okJCR2lZKAO63tpLRN6Dba/i5Mu4ivLcPNFPnGV5zAfthDP7Il9drKYOm7SZWSWTzrnh+nYr9pi51boNj0xf5xQCXhfNS4MF10qCjUN6ZH1rexYEm2I38R6ufI6QSs5CoDK22WNdHa1KekIUQifjuFedWQqcjs/20M=
-before_install:
-- sudo apt-get -qq update
-- gem uninstall -v '>= 2' -i $(rvm gemdir)@global -ax bundler || true
-- gem install bundler -v 1.15.4
 script:
 - "./build.sh"
 before_deploy:

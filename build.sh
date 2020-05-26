@@ -19,7 +19,7 @@ set -e
 
 source ~/.rvm/scripts/rvm
 
-rvm use --default jruby-9.1.6.0
+rvm use --default jruby-9.2.11.1
 bundle install
 echo 'Running RSpec'
 bundle exec rspec
