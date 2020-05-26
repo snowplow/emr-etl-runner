@@ -21,7 +21,7 @@ ruby "2.5.7"
 # RubyGems it requires here.
 gem "contracts", "~> 0.9", "<= 0.11"
 gem "elasticity", "~> 6.0.14"
-gem "avro", "~> 1.8.1"
+gem "avro", "~> 1.9.2"
 gem "awrence", "~> 0.1.0"
 gem "snowplow-tracker", "~> 0.5.2"
 gem "iglu-ruby-client", ">= 0.1.0"

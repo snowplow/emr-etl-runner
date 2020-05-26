@@ -3,7 +3,7 @@ GEM
   specs:
     addressable (2.5.0)
       public_suffix (~> 2.0, >= 2.0.2)
-    avro (1.8.1)
+    avro (1.9.2)
       multi_json
     awrence (0.1.0)
     aws-eventstream (1.0.0)
@@ -121,7 +121,7 @@ PLATFORMS
   java
 
 DEPENDENCIES
-  avro (~> 1.8.1)
+  avro (~> 1.9.2)
   awrence (~> 0.1.0)
   aws-sdk-s3 (~> 1)
   contracts (~> 0.9, <= 0.11)
