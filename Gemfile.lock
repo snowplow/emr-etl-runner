@@ -131,7 +131,7 @@ DEPENDENCIES
   diplomat (~> 2.4.0)
   elasticity (~> 6.0.14)
   iglu-ruby-client (>= 0.2.0)
-  rest-client (~> 1.0)
+  rest-client (~> 1.8.0)
   rspec (~> 3.9.0)
   snowplow-tracker (~> 0.6.1)
   warbler
