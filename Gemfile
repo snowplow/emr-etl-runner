@@ -30,7 +30,7 @@ gem "diplomat", "~> 2.0.1"
 gem "rest-client", "~> 1.0"
 
 group :development do
-  gem "rspec", "~> 3.5.0"
+  gem "rspec", "~> 3.9.0"
   gem "coveralls"
 
   gem "warbler" if RUBY_PLATFORM == 'java'
