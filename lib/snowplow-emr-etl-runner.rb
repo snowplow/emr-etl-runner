@@ -10,7 +10,7 @@
 # See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 
 # Author::    Alex Dean (mailto:support@snowplowanalytics.com)
-# Copyright:: Copyright (c) 2012-2019 Snowplow Analytics Ltd
+# Copyright:: Copyright (c) 2012-2020 Snowplow Analytics Ltd
 # License::   Apache License Version 2.0
 
 # Ruby 1.9.2 onwards doesn't add . into $LOAD_PATH by default - use require_relative instead
