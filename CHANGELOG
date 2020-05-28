@@ -1,36 +1,51 @@
+Version 0.38.0
+---------------
+Catch and retry EMR connection issues (#4)
+Bump upstream dependencies (#16)
+Bump rest-client to 1.8.0 (#15)
+Bump diplomat to 2.4.0 (#14)
+Bump aws-sdk-s3 to 1.66.0 (#13)
+Bump iglu-ruby-client to 0.2.0 (#12)
+Bump snowplow-tracker to 0.6.1 (#11)
+Bump awrence to 1.1.1 (#10)
+Bump avro to 1.9.2 (#9)
+Bump rspec to 3.9.0 (#8)
+Bump jruby to 9.2.11.1 (#7)
+Extend copyright to 2020 (#62)
+
 Version 0.37.0 (2020-04-30)
----------------------------------------------------
+---------------------------
 Switch AMI bootstrap scripts to HTTPS (#4256)
 Set ig.count (#4285)
 Catch and retry EMR connection exceptions (#4290)
 
 Version 0.36.0 (2019-12-03)
----------------------------------
+---------------------------
 Add support to the spot market for core instances (#3487)
 
 Version 0.35.0 (2019-09-12)
----------------------------------
+---------------------------
 Add support for shredded TSV data (#4074)
 Update spark_enrich version in config samples to 1.18.0 (#4091)
 
 Version 0.34.3 (2019-07-17)
----------------------------------
+---------------------------
 Update Contracts for get_failure_details (#4088)
 Make sure all steps are successfully submitted in case of a transient cluster (#4092)
 
 Version 0.34.2 (2019-05-17)
-------------------------------------
+---------------------------
 Extend backoff periods (#4049)
 Limit requests to the EMR API (#4056)
 Initialize S3::Aws constant (#4036)
 
 Version 0.34.1 (2019-02-27)
----------------------------------
+---------------------------
 Add exponential backoff when getting cluster statuses (#3995)
 Update spark_enrich version in config sample to 1.17.0 (#3991)
 
 Version 0.34.0 (2019-02-19)
---------------------------------
+---------------------------
 Add support for running steps on a persistent EMR cluster (#3930)
 Recover from request timeout (#3943)
 Set timeout to 120 seconds (#3949)
@@ -42,13 +57,13 @@ Bump elasticity to 6.0.14 (#3948)
 Extend copyright notice to 2019 (#3978)
 
 Version 0.33.1 (2018-08-21)
-----------------------------------
+---------------------------
 Replace recursive functions by their iterative versions (#3866)
 Retrieve correct latest run id when using s3a (#3871)
 Update spark_enrich version in config samples to 1.16.0 (#3859)
 
 Version 0.33.0 (2018-07-24)
--------------------------------------
+---------------------------
 Add ability to specify an EMR security configuration (#3798)
 Handle SSE-S3 encrypted S3 buckets (#3456)
 Replace Sluice by aws-sdk-s3 (#3524)
@@ -60,7 +75,7 @@ Update rdb_shredder version in config samples to 0.13.1 (#3790)
 Update spark_enrich version in config samples to 1.14.0 (#3804)
 
 Version 0.32.0 (2018-04-30)
---------------------------------------
+---------------------------
 Fail fast when trying to skip staging or enrich in stream enrich mode (#3726)
 Factor out steps-generating function (#3718)
 Uncompress enriched files when copying to HDFS (#3719)
@@ -69,7 +84,7 @@ Check if whole enriched.good is non-empty in stream enrich mode (#3717)
 Update spark_enrich version in config.yml.sample to 1.13.0 (#3710)
 
 Version 0.31.0 (2018-04-03)
---------------------------------------
+---------------------------
 Add ability to skip load_manifest_check (#3680)
 Add CI/CD to update AMI bootstrap scripts (#3683)
 Add stream_config.yml.sample (#3685)
@@ -85,13 +100,13 @@ Do not rescue on Exception (#3577)
 Update spark_enrich version in config.yml.sample to 1.12.0 (#3566)
 
 Version 0.30.0 (2017-12-18)
--------------------------------
+---------------------------
 Add ability to skip RDB Loader consistency check (#3529)
 Uncompress gzipped raw files when copying to HDFS (#3525)
 Update spark_enrich version in config.yml.sample to 1.11.0 (#3002)
 
 Version 0.29.0 (2017-11-13)
-------------------------------
+---------------------------
 Reintroduce processing directory not empty no-op (#3458)
 Retrieve the correct latest run ID during archive_shredded step (#3436)
 Fix pagination issue when retrieving latest run id (#3434)
@@ -102,7 +117,7 @@ Bump AMI version in example config to 5.9.0 (#3465)
 Force bundler 1.15.4 during CI/CD (#3493)
 
 Version 0.28.0 (2017-09-11)
--------------------------------------
+---------------------------
 Release lock in case of no-op (#3396)
 Treat archive_enriched and archive_shredded as separate steps (#3401)
 Do not pass --skip shred to RDB Loader when skipping RDB Shredder (#3403)
@@ -115,7 +130,7 @@ Pass GZIP compression argument to S3DistCp as "gz" not "gzip" (#3415)
 Update rdb_loader version in config.yml.sample to 0.13.0 (#3418)
 
 Version 0.27.0 (2017-08-17)
-----------------------------------
+---------------------------
 Use S3DistCp not Sluice for staging step (#276)
 Add an S3DistCp step for the _SUCCESS file produced by RDB Shredder (#3137)
 Add step to delete raw events from HDFS before shredding (#2545)
@@ -134,7 +149,7 @@ Retrieve RDB loader logs only when it failed or the entire run was successful (#
 Bump rspec to 3.5.0 (#3116)
 
 Version 0.26.0 (2017-07-26)
--------------------------------
+---------------------------
 Make targets loading consistent with enrichments (#3268)
 Expose arbitrary EMR configuration options (#3255)
 Add maximizeResourceAllocation option to EMR cluster configuration (#3253)
@@ -148,7 +163,7 @@ Add RDB Loader step for each target (#3121)
 Bump to 0.26.0 (#3254)
 
 Version 0.25.0 (2017-06-12)
--------------------------------------
+---------------------------
 Update to run Spark Enrich instead of Scala Hadoop Enrich (#3066)
 Update to run RDB Shredder instead of Scala Hadoop Shred (#3033)
 Add ability to run Spark jobs (#641)
@@ -167,7 +182,7 @@ No longer use sources property when loading Elasticsearch (#2993)
 Use storage target JSONs instead of targets section in config.yml (#2991)
 
 Version 0.23.0 (2017-02-21)
-------------------------------------
+---------------------------
 Bump JRuby version to 9.1.6.0 (#3050)
 Bump Elasticity to 6.0.10 (#3013)
 Remove AnonIpHash from contracts.rb (#2523)
@@ -182,7 +197,7 @@ Catch Elasticity ArgumentErrors while waiting for EMR (#3027)
 Update hadoop_shred version in config.yml.sample to 0.10.0 (#3003)
 
 Version 0.22.0 (2016-09-06)
-----------------------------------
+---------------------------
 Bump Ruby version to 2.2.3 (#2869)
 Bump Sluice to 0.4.0 (#1708)
 Bump Contracts to 0.9 (#2789)
@@ -201,7 +216,7 @@ Updated hadoop_enrich version in config.yml.sample to 1.7.0 (#2661)
 Updated hadoop_shred version in config.yml.sample to 0.9.0 (#2662)
 
 Version 0.21.0 (2016-02-28)
----------------------------------
+---------------------------
 Attached monitoring tags to jobflow (#425)
 Now throwing exception if processing thrift with --skip s3distcp or AMI 2.x.x (#1648)
 Added bootstrap action to prepare AMI >= 3.8.0 (#2320)
@@ -223,7 +238,7 @@ Updated archive bucket examples in config.yml (#2368)
 Updated hadoop_shred version in config.yml.sample to 0.7.0 (#2360)
 
 Version 0.20.0 (2016-01-02)
--------------------------------------------
+---------------------------
 Updated hadoop_enrich version in config.yml.sample to 1.5.0 (#2282)
 Added raw s3 -> hdfs step with group by (#2253)
 Added directory flattening code (#2232)
@@ -231,19 +246,19 @@ Added support for ndjson loader format (#2251)
 Improved test coverage of runner.rb (#2250)
 
 Version 0.19.0 (2015-12-04)
------------------------------------
+---------------------------
 Added hadoop_elasticsearch to config.yml.sample (#2124)
 Added support for Elasticsearch in targets section of config (#826)
 Bumped Elasticity to 6.0.5 (#2026)
 Stopped skipping the whole job just because enrich and shred are being skipped (#2049)
 
 Version 0.18.0 (2015-10-02)
------------------------------------------------
+---------------------------
 Updated AMI version in config.yml.sample to 3.7.0 (#1959)
 Updated combine_configurations.rb to add ssl_mode: disable (#1996)
 
 Version 0.17.0 (2015-08-19)
---------------------------------------------
+---------------------------
 Unified the config file format (#878)
 Added support for compressing enriched events, thanks @danisola! (#1265)
 Now supports environment variables in YML config files, thanks @epantera! (#1215)
@@ -275,7 +290,7 @@ Handled exception when the connection times out when checking the cluster, thank
 Bumped Elasticity to 6.0.3 (#1939)
 
 Version 0.16.0 (2015-07-23)
--------------------------------------
+---------------------------
 Bumped Elasticity to 6.0.2 (#1903)
 Named the processing bucket in its associated "is not empty" error (#1911)
 Made in bucket an array (#1750)
@@ -283,7 +298,7 @@ Determined path to Hadoop enrich based on its version (#1789)
 Added unit test for add_trailing_slashes function (#1904)
 
 Version 0.15.0 (2015-06-16)
-----------------------------------------
+---------------------------
 Now using new scala-hadoop-enrich jar path in Hosted Assets (#1719)
 Updated ami_version in config.yml to 3.6.0 (#1651)
 Added bootstrap action to prepare AMI 3.x for Snowplow (#1714)
@@ -292,14 +307,14 @@ Added S3DistpCp step for thrift files in processing (#1647)
 Added example javascript_script_config to enrichments folder (#1755)
 
 Version 0.14.0 (2015-04-16)
-------------------------------
+---------------------------
 Bumped Elasticity to 4.0.5 (#758)
 Added support for specifying EMR service role (#1595)
 Added support for specifying EMR jobflow role (#1232)
 Added example configuration JSONs for new enrichments (#1545)
 
 Version 0.13.0 (2015-03-17)
----------------------------------------
+---------------------------
 Fixed copy to staging for Tomcat7 logs with hyphen after .txt (#1480)
 Added missing :archive: in BucketHash (#1475)
 Added support for custom bootstrap actions, thanks @danisola! (#1405)
@@ -310,7 +325,7 @@ Bumped Contracts to 0.7 (#1498)
 Moved `include Contracts` into classes and modules (#1438)
 
 Version 0.12.0 (2015-03-02)
-------------------------------------
+---------------------------
 Now appending region name to Clojure Collector log files (#1379)
 Added support for moving and archiving timestamped Clojure Collector log files (#1400)
 Now appending rather than prepending instance names to Clojure Collector log files (#1404)
@@ -321,7 +336,7 @@ Now performing S3DistCp from processing for tsv/com.amazon.aws.cloudfront/* (#14
 Added output directory empty check prior to staging step (#1151)
 
 Version 0.11.0 (2015-02-03)
----------------------------------------
+---------------------------
 Added "thrift" collector format (#1301)
 Implemented time_diff manually (#1310)
 Fixed failure reporting when jobflow step(s) created_at is nil (#1351)
