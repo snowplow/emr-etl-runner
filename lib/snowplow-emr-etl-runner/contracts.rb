@@ -15,6 +15,7 @@
 
 require 'contracts'
 require 'iglu-client'
+require 'elasticity'
 
 module Snowplow
   module EmrEtlRunner
@@ -23,8 +24,8 @@ module Snowplow
 
     C = Contracts
 
-    def Contract.failure_callback(data)
-      msg = failure_msg(data)
+    Contract.override_failure_callback do |data|
+      msg = Contract.failure_msg(data)
         .gsub(/access_key_id=>".+?(?=")/, 'access_key_id=>"redacted')
         .gsub(/secret_access_key=>".+?(?=")/, 'secret_access_key=>"redacted')
       if data[:return_value]
@@ -207,5 +208,12 @@ module Snowplow
       :archive_enriched => Bool,
       :archive_shredded => Bool
     })
+
+    EmrStepConfig = ({
+      :step => Elasticity::JobFlowStep,
+      :retry_on_fail => Bool,
+      :rdb_loader_log => Maybe[[String, String]]
+    })
+
   end
 end
