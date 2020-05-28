@@ -86,7 +86,6 @@ module Snowplow
         run_id = @run_tstamp.strftime("%Y-%m-%d-%H-%M-%S")
         @run_id = run_id
         @rdb_loader_log_base = config[:aws][:s3][:buckets][:log] + "rdb-loader/#{@run_id}/"
-        @rdb_loader_logs = []   # pairs of target name and associated log
         etl_tstamp = (@run_tstamp.to_f * 1000).to_i.to_s
         output_codec = output_codec_from_compression_format(config.dig(:enrich, :output_compression))
         encrypted = config[:aws][:s3][:buckets][:encrypted]
@@ -207,7 +206,8 @@ module Snowplow
                 staging_step.arguments = staging_step.arguments + [ '--s3ServerSideEncryption' ]
               end
               staging_step.name = "[staging] s3-dist-cp: Raw #{l} -> Raw Staging S3"
-              submit_jobflow_step(staging_step, use_persistent_jobflow)
+              staging_step_config = {:step => staging_step, :retry_on_fail => true, :rdb_loader_log => nil}
+              submit_jobflow_step(staging_step_config, use_persistent_jobflow)
             }
           end
         end
@@ -270,7 +270,8 @@ module Snowplow
           start_hbase_step.arguments = [ 'emr.hbase.backup.Main', '--start-master' ]
 
           # NOTE: Presumes that HBase will remain available for a persistent cluster
-          submit_jobflow_step(start_hbase_step, use_persistent_jobflow) unless found_persistent_jobflow
+          start_hbase_step_config = {:step => start_hbase_step, :retry_on_fail => false, :rdb_loader_log => nil}
+          submit_jobflow_step(start_hbase_step_config, use_persistent_jobflow) unless found_persistent_jobflow
         end
 
         # Install Lingual
@@ -389,7 +390,8 @@ module Snowplow
             compact_to_hdfs_step.arguments = compact_to_hdfs_step.arguments + [ '--s3ServerSideEncryption' ]
           end
           compact_to_hdfs_step.name = "[enrich] s3-dist-cp: Raw S3 -> Raw HDFS"
-          submit_jobflow_step(compact_to_hdfs_step, use_persistent_jobflow)
+          compact_to_hdfs_step_config = {:step => compact_to_hdfs_step, :retry_on_fail => true, :rdb_loader_log => nil}
+          submit_jobflow_step(compact_to_hdfs_step_config, use_persistent_jobflow)
 
           # 2. Enrichment
           enrich_asset = if assets[:enrich].nil?
@@ -439,7 +441,8 @@ module Snowplow
           unless empty?(s3, csbe[:good])
             raise DirectoryNotEmptyError, "Cannot safely add enrichment step to jobflow, #{csbe[:good]} is not empty"
           end
-          submit_jobflow_step(enrich_step, use_persistent_jobflow)
+          enrich_step_config = {:step => enrich_step, :retry_on_fail => true, :rdb_loader_log => nil}
+          submit_jobflow_step(enrich_step_config, use_persistent_jobflow)
 
           # We need to copy our enriched events from HDFS back to S3
           copy_to_s3_step = Elasticity::S3DistCpStep.new(legacy = @legacy)
@@ -454,7 +457,8 @@ module Snowplow
             copy_to_s3_step.arguments = copy_to_s3_step.arguments + [ '--s3ServerSideEncryption' ]
           end
           copy_to_s3_step.name = "[enrich] spark: Enriched HDFS -> S3"
-          submit_jobflow_step(copy_to_s3_step, use_persistent_jobflow)
+          copy_to_s3_step_config = {:step => copy_to_s3_step, :retry_on_fail => true, :rdb_loader_log => nil}
+          submit_jobflow_step(copy_to_s3_step_config, use_persistent_jobflow)
 
           copy_success_file_step = Elasticity::S3DistCpStep.new(legacy = @legacy)
           copy_success_file_step.arguments = [
@@ -467,7 +471,8 @@ module Snowplow
             copy_success_file_step.arguments = copy_success_file_step.arguments + [ '--s3ServerSideEncryption' ]
           end
           copy_success_file_step.name = "[enrich] spark: Enriched HDFS _SUCCESS -> S3"
-          submit_jobflow_step(copy_success_file_step, use_persistent_jobflow)
+          copy_success_file_step_config = {:step => copy_success_file_step, :retry_on_fail => true, :rdb_loader_log => nil}
+          submit_jobflow_step(copy_success_file_step_config, use_persistent_jobflow)
         end
 
         # Staging data produced by Stream Enrich
@@ -493,7 +498,8 @@ module Snowplow
             staging_step.arguments = staging_step.arguments + [ '--s3ServerSideEncryption' ]
           end
           staging_step.name = "[staging_stream_enrich] s3-dist-cp: Stream Enriched #{csbe[:stream]} -> Enriched Staging S3"
-          submit_jobflow_step(staging_step, use_persistent_jobflow)
+          staging_step_config = {:step => staging_step, :retry_on_fail => true, :rdb_loader_log => nil}
+          submit_jobflow_step(staging_step_config, use_persistent_jobflow)
         end
 
         if shred
@@ -536,7 +542,8 @@ module Snowplow
               copy_to_hdfs_step.arguments = copy_to_hdfs_step.arguments + [ '--s3ServerSideEncryption' ]
             end
             copy_to_hdfs_step.name = "[shred] s3-dist-cp: Enriched S3 -> HDFS"
-            submit_jobflow_step(copy_to_hdfs_step, use_persistent_jobflow)
+            copy_to_hdfs_step_config = {:step => copy_to_hdfs_step, :retry_on_fail => true, :rdb_loader_log => nil}
+            submit_jobflow_step(copy_to_hdfs_step_config, use_persistent_jobflow)
           end
 
           shred_step =
@@ -576,7 +583,8 @@ module Snowplow
           unless empty?(s3, csbs[:good])
             raise DirectoryNotEmptyError, "Cannot safely add shredding step to jobflow, #{csbs[:good]} is not empty"
           end
-          submit_jobflow_step(shred_step, use_persistent_jobflow)
+          shred_step_config = {:step => shred_step, :retry_on_fail => false, :rdb_loader_log => nil}
+          submit_jobflow_step(shred_step_config, use_persistent_jobflow)
 
           # We need to copy our shredded types from HDFS back to S3
           # Whether to combine the files outputted by the shred step
@@ -594,7 +602,8 @@ module Snowplow
               copy_atomic_events_to_s3_step.arguments = copy_atomic_events_to_s3_step.arguments + [ '--s3ServerSideEncryption' ]
             end
             copy_atomic_events_to_s3_step.name = "[shred] s3-dist-cp: Shredded atomic events HDFS -> S3"
-            submit_jobflow_step(copy_atomic_events_to_s3_step, use_persistent_jobflow)
+            copy_atomic_events_to_s3_step_config = {:step => copy_atomic_events_to_s3_step, :retry_on_fail => true, :rdb_loader_log => nil}
+            submit_jobflow_step(copy_atomic_events_to_s3_step_step, use_persistent_jobflow)
 
             # Copy shredded JSONs (pre-R32)
             copy_shredded_types_to_s3_step = Elasticity::S3DistCpStep.new(legacy = @legacy)
@@ -609,7 +618,8 @@ module Snowplow
               copy_shredded_types_to_s3_step.arguments = copy_shredded_types_to_s3_step.arguments + [ '--s3ServerSideEncryption' ]
             end
             copy_shredded_types_to_s3_step.name = "[shred] s3-dist-cp: Shredded JSON types HDFS -> S3"
-            submit_jobflow_step(copy_shredded_types_to_s3_step, use_persistent_jobflow)
+            copy_shredded_types_to_s3_step_config = {:step => copy_shredded_types_to_s3_step_config, :retry_on_fail => true, :rdb_loader_log => nil}
+            submit_jobflow_step(copy_shredded_types_to_s3_step_onfig, use_persistent_jobflow)
 
             # Copy shredded TSVs (R32+)
             if shredder_version >= SHRED_JOB_WITH_TSV_OUTPUT
@@ -625,7 +635,8 @@ module Snowplow
                 copy_shredded_tsv_types_to_s3_step.arguments = copy_shredded_tsv_types_to_s3_step.arguments + [ '--s3ServerSideEncryption' ]
               end
               copy_shredded_tsv_types_to_s3_step.name = "[shred] s3-dist-cp: Shredded TSV types HDFS -> S3"
-              submit_jobflow_step(copy_shredded_tsv_types_to_s3_step, use_persistent_jobflow)
+              copy_shredded_tsv_types_to_s3_step_config = {:step => copy_shredded_tsv_types_to_s3_step_config, :retry_on_fail => true, :rdb_loader_log => nil}
+              submit_jobflow_step(copy_shredded_tsv_types_to_s3_step_config, use_persistent_jobflow)
             end
           else
             copy_to_s3_step = Elasticity::S3DistCpStep.new(legacy = @legacy)
@@ -639,7 +650,8 @@ module Snowplow
               copy_to_s3_step.arguments = copy_to_s3_step.arguments + [ '--s3ServerSideEncryption' ]
             end
             copy_to_s3_step.name = "[shred] s3-dist-cp: Shredded HDFS -> S3"
-            submit_jobflow_step(copy_to_s3_step, use_persistent_jobflow)
+            copy_to_s3_step_config = {:step => copy_to_s3_step, :retry_on_fail => true, :rdb_loader_log => nil}
+            submit_jobflow_step(copy_to_s3_step_config, use_persistent_jobflow)
           end
 
           copy_success_file_step = Elasticity::S3DistCpStep.new(legacy = @legacy)
@@ -653,7 +665,8 @@ module Snowplow
             copy_success_file_step.arguments = copy_success_file_step.arguments + [ '--s3ServerSideEncryption' ]
           end
           copy_success_file_step.name = "[shred] s3-dist-cp: Shredded HDFS _SUCCESS -> S3"
-          submit_jobflow_step(copy_success_file_step, use_persistent_jobflow)
+          copy_success_file_step_config = {:step => copy_success_file_step, :retry_on_fail => true, :rdb_loader_log => nil}
+          submit_jobflow_step(copy_success_file_step_config, use_persistent_jobflow)
         end
 
         if es
@@ -675,7 +688,8 @@ module Snowplow
             archive_raw_step.arguments = archive_raw_step.arguments + [ '--s3ServerSideEncryption' ]
           end
           archive_raw_step.name = "[archive_raw] s3-dist-cp: Raw Staging S3 -> Raw Archive S3"
-          submit_jobflow_step(archive_raw_step, use_persistent_jobflow)
+          archive_raw_step_config = {:step => archive_raw_step, :retry_on_fail => true, :rdb_loader_log => nil}
+          submit_jobflow_step(archive_raw_step_config, use_persistent_jobflow)
         end
 
         if rdb_load
@@ -713,7 +727,7 @@ module Snowplow
 
       # Create one step for each Elasticsearch target for each source for that target
       #
-      Contract ConfigHash, Hash, Bool, Bool, ArrayOf[Iglu::SelfDescribingJson] => ArrayOf[Elasticity::ScaldingStep]
+      Contract ConfigHash, Hash, Bool, Bool, ArrayOf[Iglu::SelfDescribingJson] => ArrayOf[EmrStepConfig]
       def get_elasticsearch_steps(config, assets, enrich, shred, failure_storages)
 
         # The default sources are the enriched and shredded errors generated for this run
@@ -737,13 +751,13 @@ module Snowplow
               }).reject { |k, v| v.nil? }
             )
             step.name = "Errors in #{source} -> Elasticsearch: #{target.data[:name]}"
-            step
+            {:step => step, :retry_on_fail => false, :rdb_loader_log => nil}
           }
         }
 
         # Wait 60 seconds before starting the first step so S3 can become consistent
         if (enrich || shred) && steps.any?
-          steps[0].arguments << '--delay' << '60'
+          steps[0][:step].arguments << '--delay' << '60'
         end
         steps
       end
@@ -754,28 +768,26 @@ module Snowplow
       # Throws an EmrExecutionError if the jobflow fails for any other reason.
       Contract ConfigHash => nil
       def run(config)
+        if @use_persistent_jobflow
+          manage_lifecycle_persistent {
+            run_persistent_mode(config)
+          }
+        else
+          run_transient_mode(config)
+        end
+      end
 
+      # This is the original EER run mode.
+      # All steps are added at once and the jobflow is left to either succeed or fail
+      Contract ConfigHash => nil
+      def run_transient_mode(config)
         snowplow_tracking_enabled = ! config[:monitoring][:snowplow].nil?
         if snowplow_tracking_enabled
           Monitoring::Snowplow.parameterize(config)
         end
 
-        @pending_jobflow_steps.each do |jobflow_step|
-          begin
-            retry_connection_issues {
-              # if the job flow is already running this triggers an HTTP call
-              @jobflow.add_step(jobflow_step)
-            }
-          rescue => e
-            # This exception has already been retried the maximum number of times
-            if snowplow_tracking_enabled
-              step_status = Elasticity::ClusterStepStatus.new
-              step_status.name = "Add step [#{jobflow_step.name}] to jobflow [#{@jobflow.jobflow_id}]. (Error: [#{e.message}])"
-              step_status.state = "FAILED"
-              Monitoring::Snowplow.instance.track_single_step(step_status)
-            end
-            raise EmrExecutionError, "Can't add step [#{jobflow_step.name}] to jobflow [#{@jobflow.jobflow_id}] (retried 3 times). Error: [#{e.message}]."
-          end
+        @pending_jobflow_steps.each do |step_config|
+          add_step_to_jobflow(step_config[:step], snowplow_tracking_enabled)
         end
 
         jobflow_id = @jobflow.jobflow_id
@@ -787,75 +799,204 @@ module Snowplow
         logger.debug "EMR jobflow #{jobflow_id} started, waiting for jobflow to complete..."
 
         if snowplow_tracking_enabled
-          Monitoring::Snowplow.instance.track_job_started(jobflow_id, cluster_status(@jobflow), cluster_step_status_for_run(@jobflow))
+          Monitoring::Snowplow.instance.track_job_started(jobflow_id, cluster_status(@jobflow), cluster_step_status_for_run(@jobflow, @run_tstamp))
         end
 
-        status = wait_for
+        job_result = wait_for(@run_tstamp)
 
-        if status.successful or status.rdb_loader_failure or status.rdb_loader_cancellation
-          log_level = if status.successful
+        output_rdb_loader_logs_for_batch(job_result, @pending_jobflow_steps, config, 0)
+
+        cluster_status = cluster_status(@jobflow)
+        cluster_step_status_for_run = cluster_step_status_for_run(@jobflow, @run_tstamp)
+        if snowplow_tracking_enabled
+            if job_result.successful
+                Monitoring::Snowplow.instance.track_job_succeeded(jobflow_id, cluster_status, cluster_step_status_for_run)
+            else
+                Monitoring::Snowplow.instance.track_job_failed(jobflow_id, cluster_status, cluster_step_status_for_run)
+            end
+        end
+
+        if job_result.bootstrap_failure
+          raise BootstrapFailureError, get_failure_details(jobflow_id, cluster_status, cluster_step_status_for_run)
+        elsif !job_result.successful
+          raise EmrExecutionError, get_failure_details(jobflow_id, cluster_status, cluster_step_status_for_run)
+        end
+
+        retry_connection_issues {
+          @jobflow.shutdown
+        }
+
+        nil
+      end
+
+      # This run mode is targeted at persistent clusters.
+      # Initially, all steps are submitted in one batch.
+      # If the batch fails, then it re-submits the subset of the batch that should be retried.
+      Contract ConfigHash => nil
+      def run_persistent_mode(config)
+
+        jobflow_id = @jobflow.jobflow_id
+        snowplow_tracking_enabled = ! config[:monitoring][:snowplow].nil?
+        if snowplow_tracking_enabled
+          Monitoring::Snowplow.parameterize(config)
+        end
+
+        # The batch comprises all steps for the first attempt.
+        batch = @pending_jobflow_steps
+        retries = 0
+
+        loop do
+          batch_tstamp = Time.new
+          batch.each do |step_config|
+            add_step_to_jobflow(step_config[:step], snowplow_tracking_enabled)
+          end
+
+          if snowplow_tracking_enabled
+            Monitoring::Snowplow.instance.track_job_started(jobflow_id, cluster_status(@jobflow), cluster_step_status_for_run(@jobflow, batch_tstamp))
+          end
+
+          job_result = wait_for(batch_tstamp)
+
+          output_rdb_loader_logs_for_batch(job_result, batch, config, retries)
+
+          cluster_status = cluster_status(@jobflow)
+          cluster_step_status_for_run = cluster_step_status_for_run(@jobflow, batch_tstamp)
+
+          if snowplow_tracking_enabled
+              if job_result.successful
+                  Monitoring::Snowplow.instance.track_job_succeeded(jobflow_id, cluster_status, cluster_step_status_for_run)
+              else
+                  Monitoring::Snowplow.instance.track_job_failed(jobflow_id, cluster_status, cluster_step_status_for_run)
+              end
+          end
+
+          if job_result.successful
+            break
+          elsif job_result.bootstrap_failure
+            raise BootstrapFailureError, get_failure_details(jobflow_id, cluster_status, cluster_step_status_for_run)
+          end
+
+          # There was a step failure! Retry the batch if we can
+
+          failed_step_status = cluster_step_status_for_run.detect { |s| s.state == 'FAILED' }
+          if failed_step_status.nil?
+            # This is unexpected: one of the steps must have failed
+            raise EmrExecutionError, get_failure_details(jobflow_id, cluster_status, cluster_step_status_for_run(@jobflow, @run_tstamp))
+          end
+          logger.debug "EMR step failed: #{failed_step_status.name}"
+
+          failed_step_config = batch.detect { |s| s[:step].name == failed_step_status.name }
+          if failed_step_config.nil? || !failed_step_config[:retry_on_fail]
+            # The step that failed is not one that can be retried
+            raise EmrExecutionError, get_failure_details(jobflow_id, cluster_status, cluster_step_status_for_run(@jobflow, @run_tstamp))
+          end
+
+          # The next batch is the subset of the previous batch, starting from the failed step
+          next_batch = batch.drop_while { |s| s[:step].name != failed_step_status.name }
+
+          # Increment the retries counter
+          # If the previous and next batches are different lengths, then we have not yet retried this particular jkstep. Therefore retries = 1.
+          retries = next_batch.length() == batch.length() ? retries + 1 : 1
+
+          if retries >= 3
+            raise EmrExecutionError, get_failure_details(jobflow_id, cluster_status, cluster_step_status_for_run(@jobflow, @run_tstamp))
+          end
+
+          batch = next_batch
+
+        end
+
+        nil
+      end
+
+
+      # This is for persistent clusters only.
+      # Ensures the cluster is running.
+      # If the cluster has expired then it ensures termination even if a EmrExecutionError is raised.
+      def manage_lifecycle_persistent
+
+        def terminate
+          cluster_status = cluster_status(@jobflow)
+          if @persistent_jobflow_duration_s > 0 and
+              cluster_status.created_at + @persistent_jobflow_duration_s < Time.new
+            logger.debug "EMR jobflow has expired and will be shutdown."
+            retry_connection_issues {
+              @jobflow.shutdown
+            }
+          end
+        end
+
+        if @jobflow.jobflow_id.nil?
+          retry_connection_issues {
+            @jobflow.run
+          }
+        end
+        logger.debug "EMR jobflow #{@jobflow.jobflow_id} started"
+
+        begin
+          yield
+          terminate
+        rescue EmrExecutionError => e
+          terminate rescue nil
+          raise e
+        end
+      end
+
+      Contract Elasticity::JobFlowStep, Bool => nil
+      def add_step_to_jobflow(jobflow_step, snowplow_tracking_enabled)
+        begin
+          retry_connection_issues {
+            # if the job flow is already running this triggers an HTTP call
+            @jobflow.add_step(jobflow_step)
+          }
+        rescue => e
+          # This exception has already been retried the maximum number of times
+          if snowplow_tracking_enabled
+            step_status = Elasticity::ClusterStepStatus.new
+            step_status.name = "Add step [#{jobflow_step.name}] to jobflow [#{@jobflow.jobflow_id}]. (Error: [#{e.message}])"
+            step_status.state = "FAILED"
+            Monitoring::Snowplow.instance.track_single_step(step_status)
+          end
+          raise EmrExecutionError, "Can't add step [#{jobflow_step.name}] to jobflow [#{@jobflow.jobflow_id}] (retried 3 times). Error: [#{e.message}]."
+        end
+        logger.debug "Added step to EMR jobflow: #{jobflow_step.name}"
+        nil
+      end
+
+      Contract JobResult, ArrayOf[EmrStepConfig], ConfigHash, Num => nil
+      def output_rdb_loader_logs_for_batch(job_result, batch, config, attempt)
+        if job_result.successful or job_result.rdb_loader_failure or job_result.rdb_loader_cancellation
+          log_level = if job_result.successful
             'info'
-          elsif status.rdb_loader_cancellation
+          elsif job_result.rdb_loader_cancellation
             'warn'
           else
             'error'
           end
-          output_rdb_loader_logs(config[:aws][:s3][:region], config[:aws][:access_key_id],
-            config[:aws][:secret_access_key], log_level)
+          rdb_loader_logs = batch.map {|s| s[:rdb_loader_log]}.compact
+          output_rdb_loader_logs(rdb_loader_logs, config[:aws][:s3][:region], config[:aws][:access_key_id],
+            config[:aws][:secret_access_key], log_level, attempt)
         end
-
-        cluster_status = cluster_status(@jobflow)
-        cluster_step_status_for_run = cluster_step_status_for_run(@jobflow)
-
-        if status.successful
-          logger.debug "EMR jobflow #{jobflow_id} completed successfully."
-          if snowplow_tracking_enabled
-            Monitoring::Snowplow.instance.track_job_succeeded(jobflow_id, cluster_status, cluster_step_status_for_run)
-          end
-
-        elsif status.bootstrap_failure
-          if snowplow_tracking_enabled
-            Monitoring::Snowplow.instance.track_job_failed(jobflow_id, cluster_status, cluster_step_status_for_run)
-          end
-          raise BootstrapFailureError, get_failure_details(jobflow_id, cluster_status, cluster_step_status_for_run)
-
-        else
-          if snowplow_tracking_enabled
-            Monitoring::Snowplow.instance.track_job_failed(jobflow_id, cluster_status, cluster_step_status_for_run)
-          end
-          raise EmrExecutionError, get_failure_details(jobflow_id, cluster_status, cluster_step_status_for_run)
-        end
-
-        if @use_persistent_jobflow and
-            @persistent_jobflow_duration_s > 0 and
-            cluster_status.created_at + @persistent_jobflow_duration_s < @run_tstamp
-          logger.debug "EMR jobflow has expired and will be shutdown."
-          retry_connection_issues {
-            @jobflow.shutdown
-          }
-        end
-
-        nil
       end
 
       # Fetch logs from S3 left by RDB Loader steps
       #
       # Parameters:
       # +region+:: region for logs bucket
-      Contract String, String, String, String => nil
-      def output_rdb_loader_logs(region, aws_access_key_id, aws_secret_key, log_level)
+      Contract ArrayOf[[String, String]], String, String, String, String, Num => nil
+      def output_rdb_loader_logs(rdb_loader_logs, region, aws_access_key_id, aws_secret_key, log_level, attempt)
 
         s3 = Aws::S3::Client.new(
           :access_key_id => aws_access_key_id,
           :secret_access_key => aws_secret_key,
           :region => region)
 
-        if @rdb_loader_logs.empty? or empty?(s3, @rdb_loader_log_base)
+        if rdb_loader_logs.empty? or empty?(s3, @rdb_loader_log_base)
           logger.info "No RDB Loader logs"
         else
           logger.info "RDB Loader logs"
 
-          @rdb_loader_logs.each do |l|
+          rdb_loader_logs.each do |l|
             tmp = Tempfile.new("rdbloader")
             bucket, key = parse_bucket_prefix(l[1])
             logger.debug "Downloading #{l[1]} to #{tmp.path}"
@@ -875,6 +1016,19 @@ module Snowplow
                 logger.error l[0]
                 logger.error tmp.read
               end
+
+              # Cannot move an object in S3, so copy and delete
+              # This prevents overwriting the original log file in case this step gets retried.
+              s3.copy_object({
+                bucket: bucket,
+                copy_source: "/#{bucket}/#{key}",
+                key: "#{key}.#{attempt}",
+              })
+              s3.delete_object({
+                bucket: bucket,
+                key: key,
+              })
+
             rescue Exception => e
               logger.error "Error while downloading RDB log #{l[1]}"
               logger.error e.message
@@ -896,11 +1050,13 @@ module Snowplow
       # Parameters:
       # +jobflow_step+:: the step to add
       # +use_persistent_jobflow+:: whether a persistent jobflow should be used
-      def submit_jobflow_step(jobflow_step, use_persistent_jobflow = false)
+      Contract EmrStepConfig, Bool => nil
+      def submit_jobflow_step(jobflow_step, use_persistent_jobflow)
         if use_persistent_jobflow
-          jobflow_step.action_on_failure = "CANCEL_AND_WAIT"
+          jobflow_step[:step].action_on_failure = "CANCEL_AND_WAIT"
         end
         @pending_jobflow_steps << jobflow_step
+        nil
       end
 
       # Build an Elasticity RDB Loader step.
@@ -911,7 +1067,7 @@ module Snowplow
       # +resolver+:: base64-encoded Iglu resolver JSON
       # +jar+:: s3 object with RDB Loader jar
       # +skip_manifest+:: whether load_manifest RDB Loader step should be skipped
-      Contract ConfigHash, ArrayOf[Iglu::SelfDescribingJson], String, String, RdbLoaderSteps, Bool => ArrayOf[Elasticity::CustomJarStep]
+      Contract ConfigHash, ArrayOf[Iglu::SelfDescribingJson], String, String, RdbLoaderSteps, Bool => ArrayOf[EmrStepConfig]
       def get_rdb_loader_steps(config, targets, resolver, jar, rdbloader_steps, skip_manifest)
 
         # Remove credentials from config
@@ -929,7 +1085,6 @@ module Snowplow
         targets.map { |target|
           name = target.data[:name]
           log_key = @rdb_loader_log_base + SecureRandom.uuid
-          @rdb_loader_logs << [name, log_key]
           encoded_target = Base64.strict_encode64(target.to_json.to_json)
           arguments = [
             "--config", default_arguments[:config],
@@ -950,6 +1105,8 @@ module Snowplow
           rdb_loader_step.arguments = arguments
           rdb_loader_step.name = "[rdb_load] Load #{name} Storage Target"
           rdb_loader_step
+
+          {:step => rdb_loader_step, :retry_on_fail => true, :rdb_loader_log => [name, log_key]}
         }
       end
 
@@ -987,7 +1144,7 @@ module Snowplow
       # +encrypted+:: whether the destination bucket is encrypted
       #
       # Returns a step ready for adding to the Elasticity Jobflow.
-      Contract String, String, String, String, String, Bool => Elasticity::S3DistCpStep
+      Contract String, String, String, String, String, Bool => EmrStepConfig
       def get_archive_step(good_path, archive_path, run_id_folder, s3_endpoint, name, encrypted)
         archive_step = Elasticity::S3DistCpStep.new(legacy = @legacy)
         archive_step.arguments = [
@@ -1000,7 +1157,7 @@ module Snowplow
           archive_step.arguments = archive_step.arguments + [ '--s3ServerSideEncryption' ]
         end
         archive_step.name = name
-        archive_step
+        {:step => archive_step, :retry_on_fail => true, :rdb_loader_log => nil}
       end
 
 
@@ -1068,8 +1225,8 @@ module Snowplow
       #
       # Returns true if the jobflow completed without error,
       # false otherwise.
-      Contract None => JobResult
-      def wait_for
+      Contract Time => JobResult
+      def wait_for(earliest)
 
         success = false
         bootstrap_failure = false
@@ -1078,7 +1235,7 @@ module Snowplow
 
         # Loop until we can quit...
         while true do
-          cluster_step_status_for_run = cluster_step_status_for_run(@jobflow)
+          cluster_step_status_for_run = cluster_step_status_for_run(@jobflow, earliest)
 
           if cluster_step_status_for_run.nil?
             logger.warn "Could not retrieve cluster status, waiting 5 minutes before checking jobflow again"
@@ -1145,11 +1302,11 @@ module Snowplow
       #
       # Parameters:
       # +jobflow+:: The jobflow to extract steps from
-      Contract Elasticity::JobFlow => ArrayOf[Elasticity::ClusterStepStatus]
-      def cluster_step_status_for_run(jobflow)
+      Contract Elasticity::JobFlow, Time => ArrayOf[Elasticity::ClusterStepStatus]
+      def cluster_step_status_for_run(jobflow, earliest)
         retry_connection_issues {
           jobflow.cluster_step_status
-            .select { |a| a.created_at >= @run_tstamp }
+            .select { |a| a.created_at >= earliest }
             .sort_by { |a| a.created_at }
         }
       end
@@ -1183,19 +1340,19 @@ module Snowplow
           (!(jobflow.cluster_status.last_state_change_reason =~ bootstrap_failure_indicator).nil?)
       end
 
-      Contract ArrayOf[String], String, String => Elasticity::CustomJarStep
+      Contract ArrayOf[String], String, String => EmrStepConfig
       def get_rmr_step(locations, bucket, description)
         step = Elasticity::CustomJarStep.new("s3://#{@jobflow.region}.elasticmapreduce/libs/script-runner/script-runner.jar")
         step.arguments = ["#{bucket}common/emr/snowplow-hadoop-fs-rmr-0.2.0.sh"] + locations
         step.name = "[cleanup] #{description}"
-        step
+        {:step => step, :retry_on_fail => true, :rdb_loader_log => nil}
       end
 
       def get_hdfs_expunge_step
         step = Elasticity::CustomJarStep.new("command-runner.jar")
         step.arguments = %W(hdfs dfs -expunge)
         step.name = "[cleanup] Empty HDFS trash"
-        step
+        {:step => step, :retry_on_fail => true, :rdb_loader_log => nil}
       end
 
       Contract TargetsHash => Maybe[String]
