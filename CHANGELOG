@@ -1,3 +1,7 @@
+Version 0.38.1 (2020-06-08)
+---------------------------
+Fix default diplomat arguments (#65)
+
 Version 0.38.0 (2020-06-05)
 ---------------------------
 Catch and retry EMR connection issues (#4)
