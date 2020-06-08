@@ -32,12 +32,12 @@ module Snowplow
         end
 
         def try_lock
-          k = Diplomat::Kv.get(@path, nil, :return, :return)
+          k = Diplomat::Kv.get(@path, {}, :return, :return)
           if k != ''
             raise LockHeldError, "Lock already held at #{@path}"
           end
           pid = Process.pid
-          success = Diplomat::Kv.put(@path, pid.to_s, nil)
+          success = Diplomat::Kv.put(@path, pid.to_s, {})
           if not success
             raise Error, "Could not store key at #{@path}"
           end
