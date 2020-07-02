@@ -603,7 +603,7 @@ module Snowplow
             end
             copy_atomic_events_to_s3_step.name = "[shred] s3-dist-cp: Shredded atomic events HDFS -> S3"
             copy_atomic_events_to_s3_step_config = {:step => copy_atomic_events_to_s3_step, :retry_on_fail => true, :rdb_loader_log => nil}
-            submit_jobflow_step(copy_atomic_events_to_s3_step_step, use_persistent_jobflow)
+            submit_jobflow_step(copy_atomic_events_to_s3_step_config, use_persistent_jobflow)
 
             # Copy shredded JSONs (pre-R32)
             copy_shredded_types_to_s3_step = Elasticity::S3DistCpStep.new(legacy = @legacy)
@@ -619,7 +619,7 @@ module Snowplow
             end
             copy_shredded_types_to_s3_step.name = "[shred] s3-dist-cp: Shredded JSON types HDFS -> S3"
             copy_shredded_types_to_s3_step_config = {:step => copy_shredded_types_to_s3_step_config, :retry_on_fail => true, :rdb_loader_log => nil}
-            submit_jobflow_step(copy_shredded_types_to_s3_step_onfig, use_persistent_jobflow)
+            submit_jobflow_step(copy_shredded_types_to_s3_step_config, use_persistent_jobflow)
 
             # Copy shredded TSVs (R32+)
             if shredder_version >= SHRED_JOB_WITH_TSV_OUTPUT
