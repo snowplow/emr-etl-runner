@@ -1,6 +1,10 @@
+Version 1.0.2 (2020-07-03)
+--------------------------
+Fix ParamContractError when copying shredded types to S3 (#74)
+
 Version 1.0.1 (2020-07-02)
 --------------------------
-Fix undefined local variable bug (close #72)
+Fix undefined local variable bug (#72)
 
 Version 1.0.0 (2020-06-10)
 --------------------------
