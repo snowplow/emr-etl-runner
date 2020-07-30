@@ -1113,7 +1113,7 @@ module Snowplow
           rdb_loader_step.name = "[rdb_load] Load #{name} Storage Target"
           rdb_loader_step
 
-          {:step => rdb_loader_step, :retry_on_fail => true, :rdb_loader_log => [name, log_key]}
+          {:step => rdb_loader_step, :retry_on_fail => false, :rdb_loader_log => [name, log_key]}
         }
       end
 
