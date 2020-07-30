@@ -1,3 +1,7 @@
+Version 1.0.3 (2020-07-30)
+--------------------------
+Disable retry on failure of the rdb_load step (#76)
+
 Version 1.0.2 (2020-07-03)
 --------------------------
 Fix ParamContractError when copying shredded types to S3 (#74)
