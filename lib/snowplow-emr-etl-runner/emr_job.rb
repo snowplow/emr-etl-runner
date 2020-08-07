@@ -48,7 +48,7 @@ module Snowplow
       SHRED_STEP_OUTPUT = 'hdfs:///local/snowplow/shredded-events/'
 
       SHRED_JOB_WITH_PROCESSING_MANIFEST = Gem::Version.new('0.14.0-rc1')
-      SHRED_JOB_WITH_TSV_OUTPUT = Gem::Version.new('0.16.0-rc1')
+      SHRED_JOB_WITH_TSV_OUTPUT = Gem::Version.new('0.16.0')
       RDB_LOADER_WITH_PROCESSING_MANIFEST = Gem::Version.new('0.15.0-rc4')
 
       AMI_4 = Gem::Version.new("4.0.0")
@@ -605,24 +605,26 @@ module Snowplow
             copy_atomic_events_to_s3_step_config = {:step => copy_atomic_events_to_s3_step, :retry_on_fail => true, :rdb_loader_log => nil}
             submit_jobflow_step(copy_atomic_events_to_s3_step_config, use_persistent_jobflow)
 
-            # Copy shredded JSONs (pre-R32)
-            copy_shredded_types_to_s3_step = Elasticity::S3DistCpStep.new(legacy = @legacy)
-            copy_shredded_types_to_s3_step.arguments = [
-              "--src"       , SHRED_STEP_OUTPUT,
-              "--dest"      , shred_final_output,
-              "--groupBy"   , SHREDDED_TYPES_PARTFILE_GROUPBY_REGEXP,
-              "--targetSize", "24",
-              "--s3Endpoint", s3_endpoint
-            ] + output_codec
-            if encrypted
-              copy_shredded_types_to_s3_step.arguments = copy_shredded_types_to_s3_step.arguments + [ '--s3ServerSideEncryption' ]
+            # Copy shredded JSONs (if shredder version < 0.16.0 or >= 0.16.0 and tabularBlacklist non empty)
+            if should_copy_shredded_JSONs(shredder_version, SHRED_JOB_WITH_TSV_OUTPUT, targets[:ENRICHED_EVENTS])
+              copy_shredded_types_to_s3_step = Elasticity::S3DistCpStep.new(legacy = @legacy)
+              copy_shredded_types_to_s3_step.arguments = [
+                "--src"       , SHRED_STEP_OUTPUT,
+                "--dest"      , shred_final_output,
+                "--groupBy"   , SHREDDED_TYPES_PARTFILE_GROUPBY_REGEXP,
+                "--targetSize", "24",
+                "--s3Endpoint", s3_endpoint
+              ] + output_codec
+              if encrypted
+                copy_shredded_types_to_s3_step.arguments = copy_shredded_types_to_s3_step.arguments + [ '--s3ServerSideEncryption' ]
+              end
+              copy_shredded_types_to_s3_step.name = "[shred] s3-dist-cp: Shredded JSON types HDFS -> S3"
+              copy_shredded_types_to_s3_step_config = {:step => copy_shredded_types_to_s3_step, :retry_on_fail => true, :rdb_loader_log => nil}
+              submit_jobflow_step(copy_shredded_types_to_s3_step_config, use_persistent_jobflow)
             end
-            copy_shredded_types_to_s3_step.name = "[shred] s3-dist-cp: Shredded JSON types HDFS -> S3"
-            copy_shredded_types_to_s3_step_config = {:step => copy_shredded_types_to_s3_step, :retry_on_fail => true, :rdb_loader_log => nil}
-            submit_jobflow_step(copy_shredded_types_to_s3_step_config, use_persistent_jobflow)
 
-            # Copy shredded TSVs (R32+)
-            if shredder_version >= SHRED_JOB_WITH_TSV_OUTPUT
+            # Copy shredded TSVs (if shredder version >= 0.16.0 and tabularBlacklist exists and is an array)
+            if should_copy_shredded_TSVs(shredder_version, SHRED_JOB_WITH_TSV_OUTPUT, targets[:ENRICHED_EVENTS])
               copy_shredded_tsv_types_to_s3_step = Elasticity::S3DistCpStep.new(legacy = @legacy)
               copy_shredded_tsv_types_to_s3_step.arguments = [
                 "--src"       , SHRED_STEP_OUTPUT,

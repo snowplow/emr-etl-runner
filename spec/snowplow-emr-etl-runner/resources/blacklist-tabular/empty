@@ -1,0 +1,23 @@
+{
+  "schema": "iglu:com.snowplowanalytics.snowplow.storage/redshift_config/jsonschema/4-0-0",
+  "data": {
+    "name": "com.snplow.eng.aws-dev1 Redshift",
+    "id": "354a3d25-7dc2-9c31-5605-19d6fd819efa",
+    "host": "sp-com-snplow-eng-aws-prod1-redshift-cluster.cdzqkzl74pqa.eu-central-1.redshift.amazonaws.com",
+    "database": "dev1",
+    "port": 5439,
+    "roleArn": "arn:aws:iam::866038399814:role/sp-com-snplow-eng-aws-prod1-redshift-load",
+    "schema": "atomic",
+    "username": "storageloader",
+    "password": "123",
+    "jdbc": {
+      "ssl": true
+    },
+    "processingManifest": null,
+    "blacklistTabular": [],
+    "maxError": 1,
+    "compRows": 200000,
+    "purpose": "ENRICHED_EVENTS",
+    "sshTunnel": null
+  }
+}
