@@ -16,6 +16,7 @@
 require 'spec_helper'
 require 'base64'
 require 'json'
+require 'contracts'
 
 Utils = Snowplow::EmrEtlRunner::Utils
 
@@ -302,5 +303,108 @@ describe Utils do
     it 'should create a string containing a summary of the failure' do
       expect(subject.get_failure_details(jobflow_id, cluster_status, cluster_step_statuses)).to eq(expected_output)
     end
+  end
+
+  describe '#should_copy_shredded_JSONs' do
+    targets_dir = File.expand_path(File.dirname(__FILE__)+"/resources/blacklist-tabular").to_s
+    v0_15_0 = Gem::Version.new("0.15.0")
+    v0_16_0 = Gem::Version.new("0.16.0")
+    v0_16_0_rc1 = Gem::Version.new("0.16.0-rc1")
+
+    it 'should return true if shredder version < 0.16.0 and tabularBlacklist is empty' do
+      expect(subject.should_copy_shredded_JSONs(v0_15_0, v0_16_0_rc1, [readSDJ(targets_dir + '/empty')])).to eq(true)
+    end
+
+    it 'should return true if shredder version < 0.16.0 and tabularBlacklist is not empty' do
+      expect(subject.should_copy_shredded_JSONs(v0_15_0, v0_16_0_rc1, [readSDJ(targets_dir + '/non-empty')])).to eq(true)
+    end
+
+    it 'should return true if shredder version < 0.16.0 and tabularBlacklist is null' do
+      expect(subject.should_copy_shredded_JSONs(v0_15_0, v0_16_0_rc1, [readSDJ(targets_dir + '/null')])).to eq(true)
+    end
+
+    it 'should return false if shredder version >= 0.16.0 and tabularBlacklist is empty' do
+      expect(subject.should_copy_shredded_JSONs(v0_16_0, v0_16_0_rc1, [readSDJ(targets_dir + '/empty')])).to eq(false)
+    end
+
+    it 'should return true if shredder version >= 0.16.0 and tabularBlacklist is not empty' do
+      expect(subject.should_copy_shredded_JSONs(v0_16_0, v0_16_0_rc1, [readSDJ(targets_dir + '/non-empty')])).to eq(true)
+    end
+
+    it 'should return true if shredder version >= 0.16.0 and tabularBlacklist is null' do
+      expect(subject.should_copy_shredded_JSONs(v0_16_0, v0_16_0_rc1, [readSDJ(targets_dir + '/null')])).to eq(true)
+    end
+  end
+
+  describe '#should_copy_shredded_TSVs' do
+    targets_dir = File.expand_path(File.dirname(__FILE__)+"/resources/blacklist-tabular").to_s
+    v0_15_0 = Gem::Version.new("0.15.0")
+    v0_16_0 = Gem::Version.new("0.16.0")
+    v0_16_0_rc1 = Gem::Version.new("0.16.0-rc1")
+
+    it 'should return false if shredder version < 0.16.0 and tabularBlacklist is not an array' do
+      expect(subject.should_copy_shredded_TSVs(v0_15_0, v0_16_0_rc1, [readSDJ(targets_dir + '/not-array')])).to eq(false)
+    end
+
+    it 'should return false if shredder version < 0.16.0 and tabularBlacklist is an array' do
+      expect(subject.should_copy_shredded_TSVs(v0_15_0, v0_16_0_rc1, [readSDJ(targets_dir + '/empty')])).to eq(false)
+    end
+
+    it 'should return false if shredder version < 0.16.0 and tabularBlacklist is null' do
+      expect(subject.should_copy_shredded_TSVs(v0_15_0, v0_16_0_rc1, [readSDJ(targets_dir + '/null')])).to eq(false)
+    end
+
+    it 'should return false if shredder version >= 0.16.0 and tabularBlacklist is not an array' do
+      expect(subject.should_copy_shredded_TSVs(v0_16_0, v0_16_0_rc1, [readSDJ(targets_dir + '/not-array')])).to eq(false)
+    end
+
+    it 'should return true if shredder version >= 0.16.0 and tabularBlacklist is an array' do
+      expect(subject.should_copy_shredded_TSVs(v0_16_0, v0_16_0_rc1, [readSDJ(targets_dir + '/empty')])).to eq(true)
+    end
+
+    it 'should return false if shredder version >= 0.16.0 and tabularBlacklist is null' do
+      expect(subject.should_copy_shredded_TSVs(v0_16_0, v0_16_0_rc1, [readSDJ(targets_dir + '/null')])).to eq(false)
+    end
+  end
+
+  describe '#extract_tabular_blacklist' do
+    targets_dir = File.expand_path(File.dirname(__FILE__)+"/resources/blacklist-tabular").to_s
+
+    it 'should return nil if there is no blacklistTabular' do
+      targetPath = targets_dir + '/absent'
+      expect(subject.extract_tabular_blacklist([readSDJ(targetPath)])).to eq(nil)
+    end
+
+    it 'should return empty array if blacklistTabular is an empty array' do
+      targetPath = targets_dir + '/empty'
+      expect(subject.extract_tabular_blacklist([readSDJ(targetPath)])).to eq([])
+    end
+
+    it 'should return an array with one element if blacklistTabular contains one element' do
+      targetPath = targets_dir + '/non-empty'
+      expect(subject.extract_tabular_blacklist([readSDJ(targetPath)]).length).to eq(1)
+    end
+
+    it 'should return nil if blacklistTabular is not an array' do
+      targetPath = targets_dir + '/not-array'
+      expect(subject.extract_tabular_blacklist([readSDJ(targetPath)])).to eq(nil)
+    end
+
+    it 'should return nil if blacklistTabular is null' do
+      targetPath = targets_dir + '/null'
+      expect(subject.extract_tabular_blacklist([readSDJ(targetPath)])).to eq(nil)
+    end
+
+    it 'should return nil if resdhift_config version is < 4.0.0' do
+      targetPath = targets_dir + '/redshift-config-3'
+      expect(subject.extract_tabular_blacklist([readSDJ(targetPath)])).to eq(nil)
+    end
+  end
+
+  include Contracts
+  Contract String => Iglu::SelfDescribingJson
+  def readSDJ(path)
+    json = JSON.parse(File.read(path), {:symbolize_names => true})
+    Iglu::SelfDescribingJson.parse_json(json)
   end
 end
