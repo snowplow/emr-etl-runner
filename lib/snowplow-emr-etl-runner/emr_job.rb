@@ -48,7 +48,7 @@ module Snowplow
       SHRED_STEP_OUTPUT = 'hdfs:///local/snowplow/shredded-events/'
 
       SHRED_JOB_WITH_PROCESSING_MANIFEST = Gem::Version.new('0.14.0-rc1')
-      SHRED_JOB_WITH_TSV_OUTPUT = Gem::Version.new('0.16.0-rc1')
+      SHRED_JOB_WITH_TSV_OUTPUT = Gem::Version.new('0.16.0')
       RDB_LOADER_WITH_PROCESSING_MANIFEST = Gem::Version.new('0.15.0-rc4')
 
       AMI_4 = Gem::Version.new("4.0.0")
