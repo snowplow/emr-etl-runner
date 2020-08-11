@@ -336,7 +336,7 @@ module Snowplow
       # Tells if the job should copy shredded JSON files
       # False if shredder version >= 0.16.0 and tabularBlacklist is an empty array
       Contract String, String, ArrayOf[Iglu::SelfDescribingJson] => Bool
-      def self.should_copy_shredded_JSONs(shredder_version, shredder_tsv_version, enriched_targets)
+      def should_copy_shredded_JSONs(shredder_version, shredder_tsv_version, enriched_targets)
         tabularBlacklist = extract_tabular_blacklist(enriched_targets)
         shredder_version < shredder_tsv_version || (!tabularBlacklist.nil? && !tabularBlacklist.empty?)
       end
@@ -344,14 +344,14 @@ module Snowplow
       # Tells if the job should copy shredded TSV files
       # True if shredder version >= 0.16.0 and tabularBlacklist exists and is an array
       Contract String, String, ArrayOf[Iglu::SelfDescribingJson] => Bool
-      def self.should_copy_shredded_TSVs(shredder_version, shredder_tsv_version, enriched_targets)
+      def should_copy_shredded_TSVs(shredder_version, shredder_tsv_version, enriched_targets)
         tabularBlacklist = extract_tabular_blacklist(enriched_targets)
         shredder_version >= shredder_tsv_version && !tabularBlacklist.nil?
       end
 
       # Extracts blackList tabular from redshift_config configuration file
       Contract ArrayOf[Iglu::SelfDescribingJson] => Maybe[ArrayOf[String]]
-      def self.extract_tabular_blacklist(enriched_targets)
+      def extract_tabular_blacklist(enriched_targets)
         redshift_target = enriched_targets.detect { |target|
           target.schema.name == 'redshift_config' && target.schema.version.model >= 4
         }

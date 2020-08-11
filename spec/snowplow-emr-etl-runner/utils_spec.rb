@@ -310,19 +310,19 @@ describe Utils do
     shredder_tsv_version = "0.16.0"
 
     it 'should return true if shredder version < 0.16.0 and tabularBlacklist is empty' do
-      expect(Utils.should_copy_shredded_JSONs('0.15.0', shredder_tsv_version, [readSDJ(targets_dir + '/empty')])).to eq(true)
+      expect(subject.should_copy_shredded_JSONs('0.15.0', shredder_tsv_version, [readSDJ(targets_dir + '/empty')])).to eq(true)
     end
 
     it 'should return true if shredder version < 0.16.0 and tabularBlacklist is not empty' do
-      expect(Utils.should_copy_shredded_JSONs('0.15.0', shredder_tsv_version, [readSDJ(targets_dir + '/non-empty')])).to eq(true)
+      expect(subject.should_copy_shredded_JSONs('0.15.0', shredder_tsv_version, [readSDJ(targets_dir + '/non-empty')])).to eq(true)
     end
 
     it 'should return false if shredder version >= 0.16.0 and tabularBlacklist is empty' do
-      expect(Utils.should_copy_shredded_JSONs('0.16.0', shredder_tsv_version, [readSDJ(targets_dir + '/empty')])).to eq(false)
+      expect(subject.should_copy_shredded_JSONs('0.16.0', shredder_tsv_version, [readSDJ(targets_dir + '/empty')])).to eq(false)
     end
 
     it 'should return true if shredder version >= 0.16.0 and tabularBlacklist is not empty' do
-      expect(Utils.should_copy_shredded_JSONs('0.16.0', shredder_tsv_version, [readSDJ(targets_dir + '/non-empty')])).to eq(true)
+      expect(subject.should_copy_shredded_JSONs('0.16.0', shredder_tsv_version, [readSDJ(targets_dir + '/non-empty')])).to eq(true)
     end
   end
 
@@ -331,19 +331,19 @@ describe Utils do
     shredder_tsv_version = "0.16.0"
 
     it 'should return false if shredder version < 0.16.0 and tabularBlacklist is not an array' do
-      expect(Utils.should_copy_shredded_TSVs('0.15.0', shredder_tsv_version, [readSDJ(targets_dir + '/not-array')])).to eq(false)
+      expect(subject.should_copy_shredded_TSVs('0.15.0', shredder_tsv_version, [readSDJ(targets_dir + '/not-array')])).to eq(false)
     end
 
     it 'should return false if shredder version < 0.16.0 and tabularBlacklist is an array' do
-      expect(Utils.should_copy_shredded_TSVs('0.15.0', shredder_tsv_version, [readSDJ(targets_dir + '/empty')])).to eq(false)
+      expect(subject.should_copy_shredded_TSVs('0.15.0', shredder_tsv_version, [readSDJ(targets_dir + '/empty')])).to eq(false)
     end
 
     it 'should return false if shredder version >= 0.16.0 and tabularBlacklist is not an array' do
-      expect(Utils.should_copy_shredded_TSVs('0.16.0', shredder_tsv_version, [readSDJ(targets_dir + '/not-array')])).to eq(false)
+      expect(subject.should_copy_shredded_TSVs('0.16.0', shredder_tsv_version, [readSDJ(targets_dir + '/not-array')])).to eq(false)
     end
 
     it 'should return true if shredder version >= 0.16.0 and tabularBlacklist is an array' do
-      expect(Utils.should_copy_shredded_TSVs('0.16.0', shredder_tsv_version, [readSDJ(targets_dir + '/empty')])).to eq(true)
+      expect(subject.should_copy_shredded_TSVs('0.16.0', shredder_tsv_version, [readSDJ(targets_dir + '/empty')])).to eq(true)
     end
   end
 
@@ -352,32 +352,32 @@ describe Utils do
 
     it 'should return nil if there is no blacklistTabular' do
       targetPath = targets_dir + '/absent'
-      expect(Utils.extract_tabular_blacklist([readSDJ(targetPath)])).to eq(nil)
+      expect(subject.extract_tabular_blacklist([readSDJ(targetPath)])).to eq(nil)
     end
 
     it 'should return empty array if blacklistTabular is an empty array' do
       targetPath = targets_dir + '/empty'
-      expect(Utils.extract_tabular_blacklist([readSDJ(targetPath)])).to eq([])
+      expect(subject.extract_tabular_blacklist([readSDJ(targetPath)])).to eq([])
     end
 
     it 'should return an array with one element if blacklistTabular contains one element' do
       targetPath = targets_dir + '/non-empty'
-      expect(Utils.extract_tabular_blacklist([readSDJ(targetPath)]).length).to eq(1)
+      expect(subject.extract_tabular_blacklist([readSDJ(targetPath)]).length).to eq(1)
     end
 
     it 'should return nil if blacklistTabular is not an array' do
       targetPath = targets_dir + '/not-array'
-      expect(Utils.extract_tabular_blacklist([readSDJ(targetPath)])).to eq(nil)
+      expect(subject.extract_tabular_blacklist([readSDJ(targetPath)])).to eq(nil)
     end
 
     it 'should return nil if blacklistTabular is null' do
       targetPath = targets_dir + '/null'
-      expect(Utils.extract_tabular_blacklist([readSDJ(targetPath)])).to eq(nil)
+      expect(subject.extract_tabular_blacklist([readSDJ(targetPath)])).to eq(nil)
     end
 
     it 'should return nil if resdhift_config version is < 4.0.0' do
       targetPath = targets_dir + '/redshift-config-3'
-      expect(Utils.extract_tabular_blacklist([readSDJ(targetPath)])).to eq(nil)
+      expect(subject.extract_tabular_blacklist([readSDJ(targetPath)])).to eq(nil)
     end
   end
 
