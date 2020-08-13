@@ -309,29 +309,30 @@ describe Utils do
     targets_dir = File.expand_path(File.dirname(__FILE__)+"/resources/blacklist-tabular").to_s
     v0_15_0 = Gem::Version.new("0.15.0")
     v0_16_0 = Gem::Version.new("0.16.0")
+    v0_16_0_rc1 = Gem::Version.new("0.16.0-rc1")
 
     it 'should return true if shredder version < 0.16.0 and tabularBlacklist is empty' do
-      expect(subject.should_copy_shredded_JSONs(v0_15_0, v0_16_0, [readSDJ(targets_dir + '/empty')])).to eq(true)
+      expect(subject.should_copy_shredded_JSONs(v0_15_0, v0_16_0_rc1, [readSDJ(targets_dir + '/empty')])).to eq(true)
     end
 
     it 'should return true if shredder version < 0.16.0 and tabularBlacklist is not empty' do
-      expect(subject.should_copy_shredded_JSONs(v0_15_0, v0_16_0, [readSDJ(targets_dir + '/non-empty')])).to eq(true)
+      expect(subject.should_copy_shredded_JSONs(v0_15_0, v0_16_0_rc1, [readSDJ(targets_dir + '/non-empty')])).to eq(true)
     end
 
     it 'should return true if shredder version < 0.16.0 and tabularBlacklist is null' do
-      expect(subject.should_copy_shredded_JSONs(v0_15_0, v0_16_0, [readSDJ(targets_dir + '/null')])).to eq(true)
+      expect(subject.should_copy_shredded_JSONs(v0_15_0, v0_16_0_rc1, [readSDJ(targets_dir + '/null')])).to eq(true)
     end
 
     it 'should return false if shredder version >= 0.16.0 and tabularBlacklist is empty' do
-      expect(subject.should_copy_shredded_JSONs(v0_16_0, v0_16_0, [readSDJ(targets_dir + '/empty')])).to eq(false)
+      expect(subject.should_copy_shredded_JSONs(v0_16_0, v0_16_0_rc1, [readSDJ(targets_dir + '/empty')])).to eq(false)
     end
 
     it 'should return true if shredder version >= 0.16.0 and tabularBlacklist is not empty' do
-      expect(subject.should_copy_shredded_JSONs(v0_16_0, v0_16_0, [readSDJ(targets_dir + '/non-empty')])).to eq(true)
+      expect(subject.should_copy_shredded_JSONs(v0_16_0, v0_16_0_rc1, [readSDJ(targets_dir + '/non-empty')])).to eq(true)
     end
 
     it 'should return true if shredder version >= 0.16.0 and tabularBlacklist is null' do
-      expect(subject.should_copy_shredded_JSONs(v0_16_0, v0_16_0, [readSDJ(targets_dir + '/null')])).to eq(true)
+      expect(subject.should_copy_shredded_JSONs(v0_16_0, v0_16_0_rc1, [readSDJ(targets_dir + '/null')])).to eq(true)
     end
   end
 
@@ -339,29 +340,30 @@ describe Utils do
     targets_dir = File.expand_path(File.dirname(__FILE__)+"/resources/blacklist-tabular").to_s
     v0_15_0 = Gem::Version.new("0.15.0")
     v0_16_0 = Gem::Version.new("0.16.0")
+    v0_16_0_rc1 = Gem::Version.new("0.16.0-rc1")
 
     it 'should return false if shredder version < 0.16.0 and tabularBlacklist is not an array' do
-      expect(subject.should_copy_shredded_TSVs(v0_15_0, v0_16_0, [readSDJ(targets_dir + '/not-array')])).to eq(false)
+      expect(subject.should_copy_shredded_TSVs(v0_15_0, v0_16_0_rc1, [readSDJ(targets_dir + '/not-array')])).to eq(false)
     end
 
     it 'should return false if shredder version < 0.16.0 and tabularBlacklist is an array' do
-      expect(subject.should_copy_shredded_TSVs(v0_15_0, v0_16_0, [readSDJ(targets_dir + '/empty')])).to eq(false)
+      expect(subject.should_copy_shredded_TSVs(v0_15_0, v0_16_0_rc1, [readSDJ(targets_dir + '/empty')])).to eq(false)
     end
 
     it 'should return false if shredder version < 0.16.0 and tabularBlacklist is null' do
-      expect(subject.should_copy_shredded_TSVs(v0_15_0, v0_16_0, [readSDJ(targets_dir + '/null')])).to eq(false)
+      expect(subject.should_copy_shredded_TSVs(v0_15_0, v0_16_0_rc1, [readSDJ(targets_dir + '/null')])).to eq(false)
     end
 
     it 'should return false if shredder version >= 0.16.0 and tabularBlacklist is not an array' do
-      expect(subject.should_copy_shredded_TSVs(v0_16_0, v0_16_0, [readSDJ(targets_dir + '/not-array')])).to eq(false)
+      expect(subject.should_copy_shredded_TSVs(v0_16_0, v0_16_0_rc1, [readSDJ(targets_dir + '/not-array')])).to eq(false)
     end
 
     it 'should return true if shredder version >= 0.16.0 and tabularBlacklist is an array' do
-      expect(subject.should_copy_shredded_TSVs(v0_16_0, v0_16_0, [readSDJ(targets_dir + '/empty')])).to eq(true)
+      expect(subject.should_copy_shredded_TSVs(v0_16_0, v0_16_0_rc1, [readSDJ(targets_dir + '/empty')])).to eq(true)
     end
 
     it 'should return false if shredder version >= 0.16.0 and tabularBlacklist is null' do
-      expect(subject.should_copy_shredded_TSVs(v0_16_0, v0_16_0, [readSDJ(targets_dir + '/null')])).to eq(false)
+      expect(subject.should_copy_shredded_TSVs(v0_16_0, v0_16_0_rc1, [readSDJ(targets_dir + '/null')])).to eq(false)
     end
   end
 
