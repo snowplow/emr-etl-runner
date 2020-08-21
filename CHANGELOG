@@ -1,3 +1,8 @@
+Version 1.0.4 (2020-08-21)
+--------------------------
+Not add/add S3DistCp for shredded JSONs and shredded TSVs depending on the configuration (#71)
+Update config.yml with latest recommended settings (#79)
+
 Version 1.0.3 (2020-07-30)
 --------------------------
 Disable retry on failure of the rdb_load step (#76)
